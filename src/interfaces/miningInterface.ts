@@ -3,6 +3,7 @@ import { Timestamp } from "firebase-admin/firestore";
 export interface Mining {
     id: string;
     userId: string;
+    level: number;
     storage: number;
     fassive: number;
     createdAt: Timestamp;

@@ -1,6 +1,6 @@
-import {gameController, addPearlController} from "../controllers/gameController";
+import {gameController, addPearlController, getTokenController} from "../controllers/gameController";
 import express from "express";
-import {authMiddleware} from "../middlewares/authMiddleware";
+//import {authMiddleware} from "../middlewares/authMiddleware";
 
 const router = express.Router();
 
@@ -18,42 +18,13 @@ const router = express.Router();
  *           schema:
  *             type: object
  *             properties:
- *               query_id:
+ *               initData:
  *                 type: string
- *               user:
- *                 type: object
- *                 properties:
- *                   id:
- *                     type: number
- *                   first_name:
- *                     type: string
- *                   last_name:
- *                     type: string
- *                   language_code:
- *                     type: string
- *                   allows_write_to_pm:
- *                     type: boolean
- *                   photo_url:
- *                     type: string
- *               auth_date:
- *                 type: string
- *               signature:
- *                 type: string
- *               hash:
- *                 type: string
+ *                 description: Telegram WebApp에서 제공하는 initData 문자열
+ *             required:
+ *               - initData
  *             example: {
- *               "query_id": "AAHHG_BfAwAAAMcb8F_uTrxP",
- *               "user": {
- *                 "id": 8052022215,
- *                 "first_name": "Jacky",
- *                 "last_name": "",
- *                 "language_code": "ko",
- *                 "allows_write_to_pm": true,
- *                 "photo_url": "https://t.me/i/userpic/320/9W6RhJjcNOTP45DHEKIlG0qaf9g4sdEU_aU5qjTNxoz0aPZJukrc1fti_rnL9hv4.svg"
- *               },
- *               "auth_date": "1736494140",
- *               "signature": "J4PkSD4j2uwclAvnSe6vxLTZm0Jf27Otz7da0CoWdo5DAEAgSE299uPySyViBd0K79GqjBxerSKYl_lguPRRAw",
- *               "hash": "5ca5e67af349e936972e988e66c36e9737fff129d17b2cbc54196812823eb4c5"
+ *               "initData": "query_id=AAEwz8BfAwAAADDPwF8U2vHs&user=%7B%22id%22%3A8048922416%2C%22first_name%22%3A%22ANTTIME%22%2C%22last_name%22%3A%22Official%22%2C%22username%22%3A%22ANTTIME_Official%22%2C%22language_code%22%3A%22ko%22%2C%22is_premium%22%3Atrue%2C%22allows_write_to_pm%22%3Atrue%2C%22photo_url%22%3A%22https%3A%5C%2F%5C%2Ft.me%5C%2Fi%5C%2Fuserpic%5C%2F320%5C%2FQwC44Fl4kgR6WlsTrt_vPQJjGiAAR2N5IzYfuOKHRXc1ILqRFUugYaPcEFxXTVi7.svg%22%7D&auth_date=1741322941&signature=_V9nzBOfArF76w1mfjbtsy_6LfuL1o_cAB2oIrptqrudm6l0F6vVOaUA0jPK6rGOjwTsf_IeUHflX4_VBCdVAw&hash=81d59214f0479ae1af278b9d5799e3b3028026252208034766dcad49118c7ebe"
  *             }
  *     responses:
  *       200:
@@ -248,6 +219,76 @@ router.post('/start', gameController);
  *                   description: 메시지
  *                   example: Internal server error
  */
-router.post('/addpearl', authMiddleware, addPearlController);
+router.post('/addpearl', addPearlController);
+
+
+/**
+ * @swagger
+ * /game/gettoken:
+ *   post:
+ *     tags:
+ *       - game
+ *     summary: 액세스 토큰과 리프레시 토큰을 발급받습니다.
+ *     security:
+ *       - bearerAuth: []
+ *     responses:
+ *       200:
+ *         description: 토큰이 성공적으로 발급됨
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 result:
+ *                   type: object
+ *                   properties:
+ *                     accessToken:
+ *                       type: string
+ *                       description: 액세스 토큰 (12시간 유효)
+ *                       example: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
+ *                     refreshToken:
+ *                       type: string
+ *                       description: 리프레시 토큰 (24시간 유효)
+ *                       example: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
+ *       401:
+ *         description: 인증 실패
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 statusCode:
+ *                   type: number
+ *                   description: 상태 코드
+ *                   example: 401
+ *                 customCode:
+ *                   type: string
+ *                   description: 커스텀 코드
+ *                   example: ERR_UNAUTHORIZED
+ *                 message:
+ *                   type: string
+ *                   description: 오류 메시지
+ *                   example: Unauthorized
+ *       500:
+ *         description: 서버 내부 오류
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 statusCode:
+ *                   type: number
+ *                   description: 상태 코드
+ *                   example: 500
+ *                 customCode:
+ *                   type: string
+ *                   description: 커스텀 코드
+ *                   example: ERR_INTERNAL_SERVER
+ *                 message:
+ *                   type: string
+ *                   description: 오류 메시지
+ *                   example: Internal server error
+ */
+router.post('/gettoken', getTokenController);
 
 export default router;

@@ -27,6 +27,10 @@ export const buyPearlRaffle = async (userId: string): Promise<any[]> => {
             throw new CustomError(404,'ASSET_NOT_FOUND');
         }
 
+        if(asset.pearl < pearlRaffle.entry_fee){
+            throw new CustomError(400, 'Not enough pearl');
+        }
+
         const transaction = {
             from: user.id,
             to: pearlRaffle.id,
@@ -37,9 +41,7 @@ export const buyPearlRaffle = async (userId: string): Promise<any[]> => {
         };
 
         await createTransaction(transaction);
-        if(asset.pearl < pearlRaffle.entry_fee){
-            throw new CustomError(400, 'Not enough pearl');
-        }
+        
         await updateAsset(user.id, {pearl: asset.pearl - pearlRaffle.entry_fee});
 
        
@@ -91,6 +93,11 @@ export const buyShellRaffle = async (userId: string): Promise<any[]> => {
         if(!asset){
             throw new CustomError(404,'ASSET_NOT_FOUND');
         }
+
+        if(asset.shell < shellRaffle.entry_fee){
+            throw new CustomError(400, 'Not enough shell');
+        }
+
 
         const transaction = {
             from: user.id,
@@ -181,7 +188,7 @@ export const getPearlRaffle = async (userId: string): Promise<any | null> => {
         console.log('이번주 로또', thisWeekLotto.length)
         return {
             raffleId: buyablePearlRaffle.id,
-            round: pearlRaffleCount,
+            round: pearlRaffleCount+1,
             entry_fee: buyablePearlRaffle.entry_fee,
             start: buyablePearlRaffle.period.start,
             end: buyablePearlRaffle.period.end,
@@ -228,7 +235,7 @@ export const getShellRaffle = async (userId: string): Promise<any | null> => {
     
         return {
             raffleId: buyableShellRaffle.id,
-            round: shellRaffleCount,
+            round: shellRaffleCount+1,
             entry_fee: buyableShellRaffle.entry_fee,
             start: buyableShellRaffle.period.start,
             end: buyableShellRaffle.period.end,

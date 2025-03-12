@@ -57,9 +57,9 @@ export const createUser = async (data: CreateUser): Promise<UserResponse> => {
 
 export const accessToken = async (): Promise<string> => {
     try {
-        console.log('process.env.JWT_SECRET============================',process.env.SECRET_KEY);
+        console.log('process.env.JWT_SECRET============================');
         const token = jwt.sign( {}, process.env.SECRET_KEY || '', { algorithm: 'HS256', expiresIn: '12h' });
-        console.log('token============================',token);
+        console.log('token============================',token.slice(0, 10));
         return token;
     } catch (error) {
         console.error(error);

@@ -3,6 +3,7 @@ import {  UpdateMining, FindMiningByUserId, commonMiningResponse } from '../inte
 import { Timestamp } from 'firebase-admin/firestore';
 import { CustomError } from '../config/errHandler';
 
+
 const miningCollection = db.collection('minings');
 
 // export const createMining = async (data: CreateMining): Promise<MiningResponse> => {
@@ -31,7 +32,10 @@ export const getMiningById = async (id: string): Promise<commonMiningResponse | 
 export const getMiningByUserId = async (data: FindMiningByUserId): Promise<commonMiningResponse | null> => {
     try {
         const doc = await miningCollection.where('userId', '==', data.userId).limit(1).get();
-        return doc.docs[0].exists ? { id: doc.docs[0].id, ...doc.docs[0].data() } as commonMiningResponse : null;
+        if (doc.empty || !doc.docs[0]) {
+            return null;
+        }
+        return { id: doc.docs[0].id, ...doc.docs[0].data() } as commonMiningResponse;
     } catch (error) {
         console.error(error);
         throw error;

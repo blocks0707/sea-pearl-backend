@@ -1,6 +1,6 @@
 import express from 'express';
 import { getMining, upgradeMining, upgradeStorage } from '../controllers/miningContoller';
-import { authMiddleware } from '../middlewares/authMiddleware';
+//import { authMiddleware } from '../middlewares/authMiddleware';
 
 const router = express.Router();
 
@@ -65,7 +65,7 @@ const router = express.Router();
  *                   type: string
  *                   description: Internal server error
  */
-router.get('/getmining', authMiddleware, getMining);
+router.get('/getmining', getMining);
 
 
 /**
@@ -120,7 +120,7 @@ router.get('/getmining', authMiddleware, getMining);
  *                   type: string
  *                   description: Internal server error
  */              
-router.post('/upgrademining', authMiddleware, upgradeMining);
+router.post('/upgrademining', upgradeMining);
 
 /**
  * @swagger
@@ -174,6 +174,6 @@ router.post('/upgrademining', authMiddleware, upgradeMining);
  *                   type: string
  *                   description: Internal server error
  */
-router.post('/upgradestorage', authMiddleware, upgradeStorage);
+router.post('/upgradestorage', upgradeStorage);
 
 export default router;

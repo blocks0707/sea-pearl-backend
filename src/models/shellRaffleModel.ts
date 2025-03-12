@@ -63,7 +63,7 @@ export const getLatestShellRaffle = async (): Promise<ShellRaffleResponse | null
         const doc = await shellRaffleCollection
         .where('indestructible', '==', false)
         .where('done', '==', false)
-        .orderBy('createdAt', 'asc')
+        .orderBy('period.start', 'asc')
         .limit(1)
         .get();
 
@@ -101,7 +101,6 @@ export const getBuyableShellRaffle = async (): Promise<ShellRaffleResponse | nul
         const doc = await shellRaffleCollection
         .where('indestructible', '==', true)
         .where('done', '==', false)
-        .orderBy('createdAt', 'desc')
         .limit(1)
         .get();
         if(!doc.docs || doc.docs.length === 0) {
@@ -154,6 +153,24 @@ export const updateShellRaffle = async (data: UpdateShellRaffle): Promise<void> 
 };
 
 
+export const insideUpdateShellRaffle = async (data: UpdateShellRaffle): Promise<void> => {
+    try {
+        const {id, ...updateData} = data;
+        const raffle = await getShellRaffleById({id});
+        if(!raffle) {
+            throw new CustomError(404, 'Raffle not found');
+        }
+        if(raffle.done) {
+            throw new CustomError(400, 'Aleady done');
+        }
+        await shellRaffleCollection.doc(id).update(updateData);
+    } catch (error) {
+        console.error(error);
+        throw error;
+    }
+};
+
+
 export const deleteShellRaffle = async (data: DeleteShellRaffleById): Promise<void> => {
     try {
         await shellRaffleCollection.doc(data.id).delete();
@@ -167,8 +184,11 @@ export const deleteShellRaffle = async (data: DeleteShellRaffleById): Promise<vo
 
 export const getAllShellRaffle = async (): Promise<number> => {
     try {
-        const doc = await shellRaffleCollection.get();
-        const count = doc.size;
+        const doc = await shellRaffleCollection.where('indestructible', '==', true).where('done', '==', true).count().get();
+        if(!doc){
+            return 0;
+        }
+        const count = doc.data().count;
         return count;
     } catch (error) {
         console.error(error);

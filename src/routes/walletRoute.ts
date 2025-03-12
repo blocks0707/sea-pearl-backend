@@ -1,6 +1,6 @@
 import {walletController, withdrawController, walletAddressUpdateController} from "../controllers/walletController";
 import express from "express";
-import {authMiddleware} from "../middlewares/authMiddleware";
+//import {authMiddleware} from "../middlewares/authMiddleware";
 
 const router = express.Router();
 
@@ -78,7 +78,7 @@ const router = express.Router();
  *                   description: Error message
  *                   example: "Internal server error"
  */
-router.post('/showlist', authMiddleware, walletController);
+router.post('/showlist', walletController);
 
 /**
  * @swagger
@@ -152,7 +152,7 @@ router.post('/showlist', authMiddleware, walletController);
  *                   description: Error message
  *                   example: "Internal server error"
  */
-router.post('/withdraw', authMiddleware, withdrawController);
+router.post('/withdraw', withdrawController);
 
 
 /**
@@ -227,6 +227,6 @@ router.post('/withdraw', authMiddleware, withdrawController);
  *                   description: Error message
  *                   example: "Internal server error"
  */
-router.post('/addressupdate', authMiddleware, walletAddressUpdateController);
+router.post('/addressupdate', walletAddressUpdateController);
 
 export default router;

@@ -131,13 +131,17 @@ export const getPlay = async (userId: string): Promise<any> => {
 };
 
 
-export const getNowEntry = async (userId: string): Promise<{nowEntryType: string, nowEntryFee: number}> => {
+export const getNowEntry = async (userId: string): Promise<{nowEntryType: string, nowEntryFee: number, enabledTry: boolean}> => {
     try {
+        //룰렛 환경 세팅 가져옴
         const roulette = await getRouletteLatest();
+
+        //룰렛 환경 세팅 값이 없으면 에러.
         if(!roulette){
             throw new CustomError(404, 'Roulette not found');
         }
 
+        //유저의 chip 세팅 가져옴. 여기에 룰렛 라운드도 있고 업데이트 날짜도 있음.
         const chip = await getChipByUserId({userId: userId});
         if(chip === null){
             throw new CustomError(400, 'Chip not found');
@@ -148,7 +152,7 @@ export const getNowEntry = async (userId: string): Promise<{nowEntryType: string
         if(!await isToday(chip.roulette_updatedAt)){
             round = 0;
         } else {
-            // 개인 룰렛 데이터에서 roulette_updatedAt이 오늘이면 roulette_round가 20미만일 경우에 1 더하기
+            // 개인 룰렛 데이터에서 roulette_updatedAt이 오늘이면 roulette_round가 아이템 수보다 미만일 경우에 1 더하기
             if(chip.roulette_round < roulette.entry.length){
                 round = chip.roulette_round + 1;
             } else {
@@ -156,7 +160,15 @@ export const getNowEntry = async (userId: string): Promise<{nowEntryType: string
             }
         }
 
-        const nowEntry = roulette.entry.filter((item: any) => item.round === round+1);
+        // const nowEntry = roulette.entry.filter((item: any) => item.round === round+1);
+        const nowEntry = roulette.entry.filter((item: any) => {
+            if(round < roulette.entry.length){
+                return item.round === round+1;
+            } else {
+                return item.round === round;
+            }
+        });
+        console.log('nowEntry===================================', nowEntry)
         let nowEntryType = '';
         let nowEntryFee = 0;
         if(nowEntry.length === 0){
@@ -170,7 +182,24 @@ export const getNowEntry = async (userId: string): Promise<{nowEntryType: string
             nowEntryType = nowEntry[0].entry_type;
             nowEntryFee = nowEntry[0].fee;
         }
-        return {nowEntryType:nowEntryType, nowEntryFee:nowEntryFee};
+
+        let enabledTry = false;
+        const asset = await getAssetByUserId({userId: userId});
+        if(!asset) throw new CustomError(400, 'Asset not found');
+        if(nowEntryType === 'usdt'){
+            if(asset.usdt >= nowEntryFee){
+                enabledTry = true;
+            }
+        } else if(nowEntryType === 'shell'){
+            if(asset.shell >= nowEntryFee){
+                enabledTry = true;
+            }
+        } else if(nowEntryType === 'pearl'){
+            if(asset.pearl >= nowEntryFee){
+                enabledTry = true;
+            }
+        }
+        return {nowEntryType:nowEntryType, nowEntryFee:nowEntryFee, enabledTry:enabledTry};
     } catch (error) {
         console.error(error);
         throw error;

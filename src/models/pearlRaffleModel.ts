@@ -115,7 +115,7 @@ export const getLatestPearlRaffle = async (): Promise<CommonPearlRaffleResponse 
         const doc = await pearlRaffleCollection
         .where('indestructible', '==', false)
         .where('done', '==', false)
-        .orderBy('createdAt', 'asc')
+        .orderBy('period.start', 'asc')
         .limit(1)
         .get()
         if(doc.docs.length === 0) {
@@ -135,7 +135,6 @@ export const getBuyablePearlRaffle = async (): Promise<CommonPearlRaffleResponse
         const doc = await pearlRaffleCollection
         .where('indestructible', '==', true)
         .where('done', '==', false)
-        .orderBy('createdAt', 'desc')
         .limit(1)
         .get();
         if(!doc.docs || doc.docs.length === 0) {
@@ -199,6 +198,20 @@ export const updatePearlRaffle = async (data: UpdatePearlRaffle): Promise<void> 
     }
 };
 
+
+export const insideUpdatePearlRaffle = async (data: UpdatePearlRaffle): Promise<void> => {
+    try {
+        const {id, ...updateData} = data;
+        const raffle = await getPearlRaffleById({id});
+        if(!raffle) throw new CustomError(404, 'Raffle not found');
+        if(raffle.done) throw new CustomError(400, 'Aleady done');
+        await pearlRaffleCollection.doc(id).update(updateData);
+    } catch (error) {
+        console.error(error);
+        throw error;
+    }
+};
+
 export const deletePearlRaffle = async (id: string): Promise<void> => {
     try {
         await pearlRaffleCollection.doc(id).delete();
@@ -210,8 +223,11 @@ export const deletePearlRaffle = async (id: string): Promise<void> => {
 
 export const getAllPearlRaffle = async (): Promise<number> => {
     try {
-        const doc = await pearlRaffleCollection.get();
-        const count = doc.size;
+        const doc = await pearlRaffleCollection.where('indestructible', '==', true).where('done', '==', true).count().get();
+        if(!doc){
+            return 0;
+        }
+        const count = doc.data().count;
         return count;
     } catch (error) {
         console.error(error);

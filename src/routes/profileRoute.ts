@@ -1,6 +1,6 @@
 import {getProfileController} from "../controllers/profileController";
 import express from 'express';
-import { authMiddleware } from '../middlewares/authMiddleware';
+//import { authMiddleware } from '../middlewares/authMiddleware';
 
 const router = express.Router();
 
@@ -71,7 +71,7 @@ const router = express.Router();
  *                   type: string
  *                   description: Internal server error
  */
-router.get('/showprofile', authMiddleware, getProfileController);
+router.get('/showprofile', getProfileController);
 
 
 export default router;

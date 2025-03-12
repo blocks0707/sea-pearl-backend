@@ -1,10 +1,11 @@
 import {openFreebox, getRestBox} from '../services/freeboxService';
 import {CustomError} from '../config/errHandler';
 import {FreeboxSchema} from '../schemas/freeboxSchema';
+import {Request, Response} from 'express';
 
 
 
-export const openFreeboxController = async (req: any, res: any): Promise<any> => {
+export const openFreeboxController = async (req: Request, res: Response): Promise<any> => {
     try {
         const body = req.body;
         const parseBody = FreeboxSchema.safeParse(body);
@@ -27,7 +28,7 @@ export const openFreeboxController = async (req: any, res: any): Promise<any> =>
 };
 
 
-export const getRestBoxController = async (req: any, res: any): Promise<any> => {
+export const getRestBoxController = async (req: Request, res: Response): Promise<any> => {
     try {
         const query = req.query;
         const parseQuery = FreeboxSchema.safeParse(query);

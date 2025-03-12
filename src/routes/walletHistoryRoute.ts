@@ -1,6 +1,6 @@
 import {getWalletHistory} from "../controllers/walletHistoryController";
 import express from "express";
-import {authMiddleware} from "../middlewares/authMiddleware";
+//import {authMiddleware} from "../middlewares/authMiddleware";
 
 const router = express.Router();
 
@@ -92,6 +92,6 @@ const router = express.Router();
  *                   description: Error message
  *                   example: "Internal server error"
  */
-router.get('/history', authMiddleware, getWalletHistory);
+router.get('/history', getWalletHistory);
 
 export default router;

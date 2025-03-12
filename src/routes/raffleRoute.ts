@@ -1,6 +1,6 @@
 import { buyPearlController, buyShellController, getShellController, getPearlController } from "../controllers/raffleController";
 import express from "express";
-import { authMiddleware } from "../middlewares/authMiddleware";
+//import { authMiddleware } from "../middlewares/authMiddleware";
 
 const router = express.Router();
 
@@ -87,7 +87,7 @@ const router = express.Router();
  *                   description: Error message
  *                   example: "Internal server error"
  */
-router.post('/buypearl', authMiddleware, buyPearlController);
+router.post('/buypearl', buyPearlController);
 
 
 /**
@@ -155,7 +155,7 @@ router.post('/buypearl', authMiddleware, buyPearlController);
  *                   type: string
  *                   description: Internal server error
  */ 
-router.post('/buyshell', authMiddleware, buyShellController);
+router.post('/buyshell', buyShellController);
 
 
 /**
@@ -271,7 +271,7 @@ router.post('/buyshell', authMiddleware, buyShellController);
  *                   type: string
  *                   description: Internal server error
  */
-router.get('/getshell', authMiddleware, getShellController);
+router.get('/getshell', getShellController);
 
 /**
  * @swagger
@@ -386,6 +386,6 @@ router.get('/getshell', authMiddleware, getShellController);
  *                   type: string
  *                   description: Internal server error
  */
-router.get('/getpearl', authMiddleware, getPearlController);
+router.get('/getpearl', getPearlController);
 
 export default router;

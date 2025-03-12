@@ -83,9 +83,12 @@ export const findThisTimePearlRaffleByUserIdAndRaffleId = async (userId: string,
 };
 
 
-export const getAllPearlRaffleIdArray = async (pearlRaffleId: string): Promise<ResponsePearlRaffleLog[]> => {
+export const getAllPearlRaffleIdArray = async (pearlRaffleId: string): Promise<ResponsePearlRaffleLog[] | []> => {
     try {
         const querySnapshot = await pearlRaffleLogCollection.where('pearlRaffleId', '==', pearlRaffleId).get();
+        if (querySnapshot.empty) {
+            return []
+        }
         const pearlRaffleLogs = querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() })) as ResponsePearlRaffleLog[];
         return pearlRaffleLogs;
     } catch (error) {

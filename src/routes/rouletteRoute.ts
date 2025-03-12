@@ -1,6 +1,6 @@
 import {getPlayController, getNowEntryController} from "../controllers/rouletteController";
 import express from "express";
-import {authMiddleware} from "../middlewares/authMiddleware";
+//import {authMiddleware} from "../middlewares/authMiddleware";
 
 const router = express.Router();
 
@@ -76,7 +76,7 @@ const router = express.Router();
  *                   description: Error message
  *                   example: "Internal server error"
  */
-router.post('/play', authMiddleware, getPlayController);
+router.post('/play', getPlayController);
 
 
 /**
@@ -145,7 +145,7 @@ router.post('/play', authMiddleware, getPlayController);
  *                   description: Error message
  *                   example: "Internal server error"
  */
-router.get('/nowEntry', authMiddleware, getNowEntryController);
+router.get('/nowEntry', getNowEntryController);
 
 
 export default router;

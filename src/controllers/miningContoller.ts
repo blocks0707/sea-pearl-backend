@@ -60,7 +60,7 @@ export const upgradeStorage = async (req: Request, res: Response) => {
         const {userId} = parseBody.data;
         const mining = await storageUpgrade(userId);
         if(!mining){
-            throw new CustomError(500, 'Storage upgrade failed');
+            throw new CustomError(400, 'Storage upgrade failed');
         }
         res.status(200).json({message: 'Storage upgraded successfully'});
         return;

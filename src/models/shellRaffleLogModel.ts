@@ -65,9 +65,12 @@ export const findThisTimeShellRaffleByUserIdAndRaffleId = async (userId: string,
 };
 
 
-export const getAllShellRaffleIdArray = async (shellRaffleId: string): Promise<ShellRaffleLogResponse[]> => {
+export const getAllShellRaffleIdArray = async (shellRaffleId: string): Promise<ShellRaffleLogResponse[] | []> => {
     try {
         const querySnapshot = await shellRaffleLogCollection.where('shellRaffleId', '==', shellRaffleId).get();
+        if (querySnapshot.empty) {
+            return [];
+        }
         const raffleIds = querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() })) as ShellRaffleLogResponse[];
         return raffleIds;
     } catch (error) {

@@ -24,7 +24,7 @@ export const openFreebox = async (userId: string): Promise<any> => {
     try {
         const setting = await getFreeboxLast();
         if (setting === null) {
-            throw new CustomError(404,'Freebox not found');
+            throw new CustomError(404,'Freebox not found', 'fb-001');
         }
 
         const random = Math.floor(Math.random() * 100);
@@ -45,21 +45,27 @@ export const openFreebox = async (userId: string): Promise<any> => {
         const asset = await getAssetByUserId({userId: userId});
         console.log('에셋이 나와야 한다. ', asset);
         const lastAdLog = await getLastAd(userId);
-        if(lastAdLog === null){
-            throw new CustomError(404,'Ad not found');
-        }
+      
         if(!asset){
-            throw new CustomError(404,'Asset not found');
+            throw new CustomError(404,'Asset not found', 'fb-003');
         }
         let newBox:number = 0;
-        if(!await isToday(lastAdLog.createdAt)){
-            newBox = 1;
-        } else {
-            if(asset.box>29){
-                throw new CustomError(400,'Box full');
+        if(lastAdLog){
+            if(!await isToday(lastAdLog.createdAt)){
+                newBox = 1;
+            } else {
+                if(asset.box>29){
+                    throw new CustomError(400,'Box full', 'fb-004');
+                }
+                if(asset.box === 29){
+                    newBox = 30;
+                }
+                newBox = asset.box + 1;
             }
-            newBox = asset.box + 1;
+        } else {
+            newBox = 1;    
         }
+        
         let lastscore=0;
         const lastAds = asset.ads;
         console.log('lastads=================', lastAds)
@@ -96,7 +102,7 @@ export const getRestBox = async (userId: string): Promise<number> => {
         const asset = await getAssetByUserId({userId: userId});
         console.log('에셋이 나와야 한다. 미리보기', asset);
         if(!asset){
-            throw new CustomError(404,'Asset not found');
+            throw new CustomError(404,'Asset not found', 'fb-005');
         }
         const lastAds = await getLastAd(userId);
         if(lastAds === null){

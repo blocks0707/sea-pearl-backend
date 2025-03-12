@@ -1,6 +1,6 @@
 import express from 'express';
 import { getBoost, doubleXBoost, fourXBoost } from '../controllers/boostController';
-import { authMiddleware } from '../middlewares/authMiddleware';
+//import { authMiddleware } from '../middlewares/authMiddleware';
 
 const router = express.Router();
 
@@ -41,7 +41,7 @@ const router = express.Router();
  *       500:
  *         description: Internal server error
  */
-router.get('/screen', authMiddleware, getBoost);
+router.get('/screen', getBoost);
 
 
 /**
@@ -89,7 +89,7 @@ router.get('/screen', authMiddleware, getBoost);
  *       500:
  *         description: Internal server error
  */
-router.post('/doublexboost', authMiddleware, doubleXBoost);
+router.post('/doublexboost', doubleXBoost);
 
 
 /**
@@ -137,6 +137,6 @@ router.post('/doublexboost', authMiddleware, doubleXBoost);
  *       500:
  *         description: Internal server error
  */
-router.post('/fourxboost', authMiddleware, fourXBoost);
+router.post('/fourxboost', fourXBoost);
 
 export default router;

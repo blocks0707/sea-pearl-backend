@@ -1,6 +1,6 @@
 import {sendMessageController, getFriendsController} from '../controllers/referralController';
 import express from 'express';
-import { authMiddleware } from '../middlewares/authMiddleware';
+//import { authMiddleware } from '../middlewares/authMiddleware';
 
 const router = express.Router();
 
@@ -77,7 +77,7 @@ const router = express.Router();
  *                       description: Error message
  *                       example: "Internal Server Error"
  */
-router.post('/sendmessage', authMiddleware, sendMessageController);
+router.post('/sendmessage', sendMessageController);
 
 
 /** 
@@ -159,6 +159,6 @@ router.post('/sendmessage', authMiddleware, sendMessageController);
  *                   description: Error message
  *                   example: "Internal server error"
  */
-router.post('/getfriends', authMiddleware, getFriendsController);
+router.post('/getfriends', getFriendsController);
 
 export default router;

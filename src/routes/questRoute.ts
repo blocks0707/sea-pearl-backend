@@ -1,6 +1,6 @@
 import express from 'express';
 import {getAllProjectsController, getCategorizedQuestsController, achieveQuestController, visitQuestProgressController} from '../controllers/questController';
-import {authMiddleware} from '../middlewares/authMiddleware';
+//import {authMiddleware} from '../middlewares/authMiddleware';
 
 const router = express.Router();
 /**
@@ -361,7 +361,7 @@ router.get('/getcategorizedquests',  getCategorizedQuestsController);
  *                   example: Internal server error
  *                   description: Error message
  */
-router.post('/achievequest', authMiddleware, achieveQuestController);
+router.post('/achievequest', achieveQuestController);
 
 
 
@@ -480,7 +480,7 @@ router.post('/achievequest', authMiddleware, achieveQuestController);
  *                   type: string
  *                   example: Internal server error
  */
-router.post('/visitquestprogress', authMiddleware, visitQuestProgressController);
+router.post('/visitquestprogress', visitQuestProgressController);
 
 
 export default router;

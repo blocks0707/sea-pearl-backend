@@ -1,4 +1,4 @@
-//import {onRequest} from "firebase-functions/v2/https";
+import {onRequest} from "firebase-functions/v2/https";
 // import * as logger from "firebase-functions/logger";
 
 import express from "express";
@@ -21,6 +21,8 @@ import walletRoute from "./routes/walletRoute";
 import walletHistoryRoute from "./routes/walletHistoryRoute";
 import questRoute from "./routes/questRoute";
 import "./utils/batchSchedule";
+import { pearlRaffleChooseBatch, shellRaffleChooseBatch, pearlRaffleCreateBatch, shellRaffleCreateBatch } from "./utils/batchSchedule";
+export { pearlRaffleChooseBatch, shellRaffleChooseBatch, pearlRaffleCreateBatch, shellRaffleCreateBatch }
 
 const options: Options = {
     definition: {
@@ -119,12 +121,12 @@ app.get('/', (req, res)=>{
     res.send("health check is ok")
 })
 
-// export const seapearl = onRequest({
-//     region: "us-central1",
-//     minInstances: 1,
-//     timeoutSeconds: 900
-// }, app);
+export const seapearl = onRequest({
+    region: "us-central1",
+    minInstances: 1,
+    timeoutSeconds: 900
+}, app);
 
-app.listen(3000, () => {
-    console.log("Server is running on http://localhost:3000");
-});
+// app.listen(3000, () => {
+//     console.log("Server is running on http://localhost:3000");
+// });

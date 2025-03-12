@@ -26,6 +26,11 @@ export const walletMain = async (userId: string): Promise<any> => {
 
 export const withdraw = async (userId: string, amount: number): Promise<boolean> => {
     try {
+        const wallet = await getWalletByUserId({userId: userId});
+        console.log('wallet=========================',wallet)
+        if(!wallet) throw new CustomError(404, 'Wallet not found in withdraw');
+        if(!wallet.address) throw new CustomError(400, 'Wallet address not found in withdraw');
+
         const asset = await getAssetByUserId({userId: userId});
         if(!asset){
             throw new CustomError(404, 'Asset not found');

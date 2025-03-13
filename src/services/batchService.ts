@@ -245,7 +245,20 @@ export const choosePearlRaffleWinnerJob = async () => {
                 }
             }
             console.log(cumulative, gradeAssigned)
+            await createTransaction({
+                fee_type: 'usdt',
+                reason: 'pearl_raffle_winner',
+                amount: pickPearlRaffle.reward[gradeAssigned].amount,
+                from: 'company',
+                to: user.id,
+            })
+            const asset = await getAssetByUserId({userId: user.id});
+            if(!asset){
+                throw new CustomError(400, 'ASSET_NOT_FOUND');
+            }
+            await updateAsset(user.id, {usdt: asset.usdt + pickPearlRaffle.reward[gradeAssigned].amount});
             return {
+                userId: user.id,
                 name: user.firstName + ' ' + user.lastName, 
                 lotto_number: log.id,
                 grade: gradeAssigned
@@ -403,7 +416,20 @@ export const chooseShellRaffleWinnerJob = async () => {
                 }
             }
             console.log(cumulative, gradeAssigned)
+            await createTransaction({
+                fee_type: 'usdt',
+                reason: 'shell_raffle_winner',
+                amount: pickShellRaffle.reward[gradeAssigned].amount,
+                from: 'company',
+                to: user.id,
+            })
+            const asset = await getAssetByUserId({userId: user.id});
+            if(!asset){
+                throw new CustomError(400, 'ASSET_NOT_FOUND');
+            }
+            await updateAsset(user.id, {usdt: asset.usdt + pickShellRaffle.reward[gradeAssigned].amount});
             return {
+                userId: user.id,
                 name: user.firstName + ' ' + user.lastName, 
                 lotto_number: log.id,
                 grade: gradeAssigned

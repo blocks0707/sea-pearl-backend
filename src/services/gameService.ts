@@ -4,6 +4,7 @@ import { CreateUser } from '../interfaces/userInterface'
 import { getAssetByUserId, updateAsset } from '../models/assetModel';
 import { getMiningByUserId } from '../models/miningModel';
 import { createTransaction } from '../models/transactionModel';
+import { createFassiveStorage, findFassiveStorageByUserId } from '../models/fassiveStorageModel';
 import { loginQuest } from '../services/questService';
 import { CustomError } from '../config/errHandler';
 import { db } from '../config/db';
@@ -108,6 +109,7 @@ export const gameMain = async (data: any): Promise<null | any> => {
     const miningCollection = db.collection('minings');
     const chipCollection = db.collection('chips');
     const inviteCollection = db.collection('invites');
+    const fassiveStorageCollection = db.collection('fassiveStorages');
 
     try {
         const secretKey = process.env.TELEGRAM_PUBLIC_KEY;
@@ -195,6 +197,7 @@ export const gameMain = async (data: any): Promise<null | any> => {
                     const newAssetDoc = assetCollection.doc();
                     const newMiningDoc = miningCollection.doc();
                     const newChipDoc = chipCollection.doc();
+                    const newFassiveStorageDoc = fassiveStorageCollection.doc();
                     // transaction.set(newUserDoc, {telegramUid: telegramUid, firstName: userData.user.first_name, lastName: userData.user.last_name, createdAt: Timestamp.now(), updatedAt: Timestamp.now() });
                     // transaction.set(newAssetDoc, { userId, pearl: 0, shell: 0, usdt: 0, box: 0, ads: 0, createdAt: Timestamp.now(), updatedAt: Timestamp.now() });
                     // transaction.set(newMiningDoc, { userId, level: 1, storage: 0, fassive: 0, createdAt: Timestamp.now(), updatedAt: Timestamp.now() });
@@ -227,11 +230,19 @@ export const gameMain = async (data: any): Promise<null | any> => {
                       updatedAt: Timestamp.now(),
                     };
 
+                    const fassiveStorage = {
+                        userId,
+                        pearl:0,
+                        createdAt: Timestamp.now(),
+                        updatedAt: Timestamp.now()
+                    }
+
                     // 비동기 작업 병렬 처리
                     await Promise.all([
                       newAssetDoc.set(assetData),
                       newMiningDoc.set(miningData),
                       newChipDoc.set(chipData),
+                      newFassiveStorageDoc.set(fassiveStorage)
                     ]);
                     const asset = {
                       id: newAssetDoc.id,
@@ -258,6 +269,10 @@ export const gameMain = async (data: any): Promise<null | any> => {
         } else {
             userId = user.id;
             console.log('existing user', userId)
+            const fassiveStorage = await findFassiveStorageByUserId(userId);
+            if(!fassiveStorage){
+                await createFassiveStorage({userId});
+            }
             let data:any = {};
             if(userInit.first_name !== user.firstName && (userInit.first_name !== undefined )){
                 data.firstName = userInit.first_name;

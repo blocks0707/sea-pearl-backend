@@ -97,6 +97,44 @@ export const getLatestfourXBoostTransaction = async (userId: string): Promise<Tr
 };
 
 
+export const getAllBoostTransaction = async (userId: string, time:Timestamp): Promise<any> => {
+    try {
+        const oneHourAgo = new Timestamp(time.seconds - 3600, time.nanoseconds);
+        const query = await transactionCollection.where('from', '==', userId).where('reason', 'in', ['2xboost', '4xboost']).where('createdAt', '>=', time).where('createdAt', '<=', oneHourAgo).get();
+        const all = await transactionCollection.where('from', '==', userId).where('reason', 'in', ['2xboost', '4xboost']).get();
+
+        let double = 0;
+        let four = 0;
+        let lastBoost = '';
+        let lastTime = '';
+
+        if(query.docs.length == all.docs.length){
+            query.docs.forEach((doc) => {
+                if(doc.data().reason == '2xboost'){
+                    double++;
+                }else{
+                    four++;
+                }
+            })
+        } else {
+            query.docs.forEach((doc) => {
+                if(doc.data().reason == '2xboost'){
+                    double++;
+                }else{
+                    four++;
+                }
+            })
+            const lastTransaction = all.docs[all.docs.length - 1];
+            lastTime = lastTransaction.data().createdAt.toDate().toISOString();
+            lastBoost = lastTransaction.data().reason;
+        }
+
+        return {double, four, lastTime, lastBoost};
+    } catch (error) {
+        console.error(error);
+        throw error;
+    }
+}
 
 export const deleteTransaction = async (reqData: DeleteTransactionById): Promise<void> => {
     try {

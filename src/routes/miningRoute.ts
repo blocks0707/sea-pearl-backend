@@ -1,5 +1,5 @@
 import express from 'express';
-import { getMining, upgradeMining, upgradeStorage } from '../controllers/miningContoller';
+import { getMining, upgradeMining, upgradeStorage, movePearlToAssetController } from '../controllers/miningContoller';
 //import { authMiddleware } from '../middlewares/authMiddleware';
 
 const router = express.Router();
@@ -175,5 +175,79 @@ router.post('/upgrademining', upgradeMining);
  *                   description: Internal server error
  */
 router.post('/upgradestorage', upgradeStorage);
+
+
+
+/**
+ * @swagger
+ * /mining/movepearltoasset:
+ *   post:
+ *     tags:
+ *       - mining
+ *     summary: 패시브 채굴된 진주를 자산으로 이동
+ *     requestBody:
+ *       description: 유저 ID
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - userId
+ *             properties:
+ *               userId:
+ *                 type: string
+ *     responses:
+ *       200:
+ *         description: 진주가 성공적으로 자산으로 이동됨
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                   description: Move pearl to asset successfully
+ *       400:
+ *         description: 잘못된 요청
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 statusCode:
+ *                   type: number
+ *                 customCode:
+ *                   type: string
+ *                 message:
+ *                   type: string
+ *       404:
+ *         description: 리소스를 찾을 수 없음
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 statusCode:
+ *                   type: number
+ *                 customCode:
+ *                   type: string
+ *                 message:
+ *                   type: string
+ *       500:
+ *         description: 서버 내부 오류
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 statusCode:
+ *                   type: number
+ *                 customCode:
+ *                   type: string
+ *                 message:
+ *                   type: string
+ */
+router.post('/movepearltoasset', movePearlToAssetController);
 
 export default router;

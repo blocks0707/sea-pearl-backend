@@ -1,4 +1,4 @@
-import {getMiningData, miningUpgrade, storageUpgrade} from '../services/miningService';
+import {getMiningData, miningUpgrade, storageUpgrade, movePearlToAsset} from '../services/miningService';
 import {CustomError} from '../config/errHandler';
 import { Request, Response } from "express";
 import {MiningSchema} from '../schemas/miningSchema';
@@ -74,3 +74,29 @@ export const upgradeStorage = async (req: Request, res: Response) => {
         return;
     }
 };
+
+export const movePearlToAssetController = async (req: Request, res: Response) => {
+    try {
+        const body = req.body;
+        const parseBody = MiningSchema.safeParse(body);
+        if(!parseBody.success){
+            throw new CustomError(400, 'Invalid request body', 'ERR_INVALID_REQUEST_BODY');
+        }
+        const {userId} = parseBody.data;
+        const mining = await movePearlToAsset(userId);
+        if(!mining){
+            throw new CustomError(400, 'Move pearl to asset failed');
+        }
+        res.status(200).json({message: 'Move pearl to asset successfully'});
+        return;
+    } catch (error) {
+        console.error(error);
+        if (error instanceof CustomError) {
+            res.status(error.statusCode).json({ statusCode: error.statusCode, customCode: error.customCode, message: error.message });
+            return;
+        }
+        res.status(500).json({ statusCode: 500, customCode: 'ERR_INTERNAL_SERVER', message: 'Internal server error' });
+        return;
+    }
+};
+

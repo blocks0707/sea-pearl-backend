@@ -1,6 +1,8 @@
 import {getAssetByUserId, updateAsset} from "../models/assetModel";
-import {createTransaction, getLatestDoubleXBoostTransaction, getLatestfourXBoostTransaction} from "../models/transactionModel";
+import {createTransaction, getLatestDoubleXBoostTransaction, getLatestfourXBoostTransaction, getAllBoostTransaction} from "../models/transactionModel";
 import {getMiningByUserId, updateMining} from "../models/miningModel";
+import {findFassiveStorageByUserId, updateFassiveStorage} from "../models/fassiveStorageModel";
+//import {updateFassiveStorage} from "../models/fassiveStorageModel";
 import {CustomError} from "../config/errHandler";
 import {Timestamp} from "firebase-admin/firestore";
 
@@ -26,9 +28,63 @@ export const getMiningData = async (userId: string): Promise<any> => {
         } else {
             miningUpgradeFee = 0;
         }
+        const storage = await findFassiveStorageByUserId(userId);
+        if(!storage){
+            throw new CustomError(404, 'Fassive storage not found');
+        }
         
+        const {double, four, lastTime, lastBoost} = await getAllBoostTransaction(userId, storage.updatedAt as Timestamp);
+    
+        let now_fassive_storage: number = 0;
+        const now = Timestamp.now();
+        const updatedAt = storage.updatedAt as Timestamp;
+        let diffInMilliseconds = now.toMillis() - updatedAt.toMillis() - (double * 60 * 60 * 1000) - (four * 60 * 60 * 1000);
+        if(diffInMilliseconds<0){
+            diffInMilliseconds = 0;
+        }
+        const elapsedMinutes = Math.floor(diffInMilliseconds / (1000 * 60));
+
+        //여기서 fassive 가져온 다음 분당 얼마인지 계산.
+        const fassiveMining = (25 + mining.fassive) / 60;
+      
+        //2배 부스트 동안의 패시브 채굴 양
+        const doublexboost = double * fassiveMining * 60;
+        //4배 부스트 동안의 패시브 채굴 양
+        const fourxboost = four * fassiveMining * 60;
+        //storage의 updatedAt 이후의 부스트 시간을 제외한 총 시간. 
+        let total_elapsed_minutes = elapsedMinutes - (double * 60) - (four * 60);
+        //마지막 시간과 마지막 부스트가 있을 경우 채굴량
+        let lastBoostPearl = 0;
+        if(lastTime && lastBoost){
+            //toISOString을 Timestamp로 변환
+            const lastTimeTimestamp = new Timestamp(Math.floor(new Date(lastTime).getTime()/1000), 0);
+            const this_now = Timestamp.now();
+            const lastDiffInMilliseconds = this_now.toMillis() - lastTimeTimestamp.toMillis();
+            const lastElapsedMinutes = Math.floor(lastDiffInMilliseconds / (1000 * 60));
+            
+            if(lastBoost == '2xboost'){
+                lastBoostPearl = fassiveMining * 2 * lastElapsedMinutes;
+            } else if(lastBoost == '4xboost'){
+                lastBoostPearl = fassiveMining * 4 * lastElapsedMinutes;
+            }
+            total_elapsed_minutes = total_elapsed_minutes - lastElapsedMinutes;
+        }
+        
+        const preFassiveStorage = Math.floor(fassiveMining * total_elapsed_minutes);
+
+        const resultStorage = preFassiveStorage + doublexboost + fourxboost + lastBoostPearl;
+        
+        if(resultStorage >= 1000 + mining.storage * 90){
+            now_fassive_storage = 1000 + mining.storage * 90;
+        } else {
+            now_fassive_storage = resultStorage;
+        }
+        console.log('storage=====================', storage.id)
+        await updateFassiveStorage(storage.id, {pearl: now_fassive_storage});
+
         return {
             storage_level: mining.storage,
+            pearl_in_storage: now_fassive_storage,
             now_storage: 1000 + mining.storage * 90,
             storageUpgradeFee: storageUpgradeFee,
             fassive_level: mining.fassive,
@@ -42,6 +98,96 @@ export const getMiningData = async (userId: string): Promise<any> => {
 };
 
 
+
+export const movePearlToAsset = async (userId: string): Promise<boolean> => {
+    try {
+        const asset = await getAssetByUserId({userId});
+        if (!asset) {
+            throw new CustomError(404, 'Asset not found');
+        }
+        const fassiveStorage = await findFassiveStorageByUserId(userId);
+        console.log('fassiveStorage=====================', fassiveStorage)
+        if (!fassiveStorage) {
+            throw new CustomError(404, 'Fassive storage not found');
+        }
+
+        const mining = await getMiningByUserId({userId});
+        if (!mining) {
+            throw new CustomError(404, 'Mining not found');
+        }
+
+        const storage = await findFassiveStorageByUserId(userId);
+        if(!storage){
+            throw new CustomError(404, 'Fassive storage not found');
+        }
+        
+        const {double, four, lastTime, lastBoost} = await getAllBoostTransaction(userId, storage.updatedAt as Timestamp);
+    
+        let now_fassive_storage: number = 0;
+        const now = Timestamp.now();
+        const updatedAt = storage.updatedAt as Timestamp;
+        let diffInMilliseconds = now.toMillis() - updatedAt.toMillis() - (double * 60 * 60 * 1000) - (four * 60 * 60 * 1000);
+        if(diffInMilliseconds<0){
+            diffInMilliseconds = 0;
+        }
+        const elapsedMinutes = Math.floor(diffInMilliseconds / (1000 * 60));
+
+        //여기서 fassive 가져온 다음 분당 얼마인지 계산.
+        const fassiveMining = (25 + mining.fassive) / 60;
+      
+        //2배 부스트 동안의 패시브 채굴 양
+        const doublexboost = double * fassiveMining * 60;
+        //4배 부스트 동안의 패시브 채굴 양
+        const fourxboost = four * fassiveMining * 60;
+        //storage의 updatedAt 이후의 부스트 시간을 제외한 총 시간. 
+        let total_elapsed_minutes = elapsedMinutes - (double * 60) - (four * 60);
+        //마지막 시간과 마지막 부스트가 있을 경우 채굴량
+        let lastBoostPearl = 0;
+        if(lastTime && lastBoost){
+            //toISOString을 Timestamp로 변환
+            const lastTimeTimestamp = new Timestamp(Math.floor(new Date(lastTime).getTime()/1000), 0);
+            const this_now = Timestamp.now();
+            const lastDiffInMilliseconds = this_now.toMillis() - lastTimeTimestamp.toMillis();
+            const lastElapsedMinutes = Math.floor(lastDiffInMilliseconds / (1000 * 60));
+            
+            if(lastBoost == '2xboost'){
+                lastBoostPearl = fassiveMining * 2 * lastElapsedMinutes;
+            } else if(lastBoost == '4xboost'){
+                lastBoostPearl = fassiveMining * 4 * lastElapsedMinutes;
+            }
+            total_elapsed_minutes = total_elapsed_minutes - lastElapsedMinutes;
+        }
+        
+        const preFassiveStorage = Math.floor(fassiveMining * total_elapsed_minutes);
+
+        const resultStorage = preFassiveStorage + doublexboost + fourxboost + lastBoostPearl;
+        
+        if(resultStorage >= 1000 + mining.storage * 90){
+            now_fassive_storage = 1000 + mining.storage * 90;
+        } else {
+            now_fassive_storage = resultStorage;
+        }
+        console.log('now_fassive_storage=====================', now_fassive_storage)
+      
+        await updateFassiveStorage(fassiveStorage.id, {pearl: 0});
+        const transaction = await createTransaction({
+            fee_type: 'pearl',
+            from: "company",
+            to: userId,
+            amount: now_fassive_storage,
+            reason: 'fassive_storage_to_asset',
+            createdAt: Timestamp.now(),
+        });
+        if (!transaction) {
+            throw new CustomError(500, 'Transaction failed');
+        }
+        await updateAsset(userId, {pearl: asset.pearl + now_fassive_storage});
+        return true;
+    } catch (error) {
+        console.error(error);
+        throw error;
+    }
+}
 
 
 export const miningUpgrade = async (userId: string): Promise<boolean> => {

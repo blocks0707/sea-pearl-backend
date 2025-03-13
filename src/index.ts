@@ -20,7 +20,7 @@ import rouletteRoute from "./routes/rouletteRoute";
 import walletRoute from "./routes/walletRoute";
 import walletHistoryRoute from "./routes/walletHistoryRoute";
 import questRoute from "./routes/questRoute";
-import "./utils/batchSchedule";
+// import "./utils/batchSchedule";
 import { pearlRaffleChooseBatch, shellRaffleChooseBatch, pearlRaffleCreateBatch, shellRaffleCreateBatch } from "./utils/batchSchedule";
 export { pearlRaffleChooseBatch, shellRaffleChooseBatch, pearlRaffleCreateBatch, shellRaffleCreateBatch }
 
